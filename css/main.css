@@ -1,0 +1,15 @@
+html { font-family: 'Lato', sans-serif; touch-callout: none; user-select: none; cursor: default; }
+
+body { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: linear-gradient(110deg, #222, #334); color: #eef; overflow: hidden; }
+    #grid { position: absolute; left: 0; right: 0; top: 0; bottom: 0; z-index: 1; }
+        .square { position: relative; display: inline-block; vertical-align: top; width: 20%; height: 20%; box-shadow: -1px -1px 0 #666; overflow: hidden; }
+            .square-click-pulse { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: #852610; z-index: 0; animation: square-click-pulsing 1s; }
+            @keyframes square-click-pulsing { 0% { opacity: 1; } 50% { opacity: 0; }}
+            .in-square { position: absolute; left: 50%; top: 50%; width: 66.6%; padding: 20px; transform: translate(-50%, -50%); text-align: center; z-index: 1; }
+                .in-square .pct { font-size: 3em; font-weight: bold; }
+                    .in-square .pct .value { }
+                    .in-square .pct .unit { font-size: 0.3em; margin-left: 0.25em; }
+        .square.active { background: linear-gradient(110deg, #334, #445); transition: background 0.4s; cursor: pointer; }
+        .square.active:hover { background: linear-gradient(220deg, #445, #445); }
+
+    .flying-pct { position: absolute; color: #666; transform: rotate(0deg); transition: transform 20s; }

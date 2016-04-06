@@ -25,6 +25,26 @@ $(document).ready(function() {
         return Math.random()*100 < square(ix).data('pct');
     }
 
+    function shuffle(array) {
+        let counter = array.length;
+
+        // While there are elements in the array
+        while (counter > 0) {
+            // Pick a random index
+            let index = Math.floor(Math.random() * counter);
+
+            // Decrease counter by 1
+            counter--;
+
+            // And swap the last element with it
+            let temp = array[counter];
+            array[counter] = array[index];
+            array[index] = temp;
+        }
+
+        return array;
+    }
+
     function fillSquare(ix, pct, text) {
         $$in.eq(ix).html(
             '<span class="pct">' +
@@ -75,6 +95,68 @@ $(document).ready(function() {
             });
             onSquare(16, function() {
                 if (roll(16)) makeLevel(4);
+            });
+        }
+        else if (n === 4) {
+            var shuffleText = 'chance of shuffling the 9 centre squares';
+            var productText = 'chance of inserting rounded product of all chances to the left to chance below';
+            var nlChance = 0, nlText = 'chance of proceeding to NL';
+            var centreArray = [90, 10, 90, 10, 10, 10, 10, 90, 10];
+
+            fillSquare(0, 100, shuffleText);
+            fillSquare(14, 100, productText);
+            fillSquare(24, 0, nlText);
+            for (i=0; i<3; i++) {
+                for (j=0; j<3; j++) {
+                    fillSquare(5*j+i+6, centreArray[3*j+i], '');
+                }
+            }
+
+            onSquare(0, function() {
+                centreArray = shuffle(centreArray);            
+                for (i=0; i<3; i++) {
+                    for (j=0; j<3; j++) {
+                        fillSquare(5*j+i+6, centreArray[3*j+i], '');
+                    }
+                }
+            });
+            onSquare(14, function() { 
+                nlChance = Math.round(centreArray[3]*centreArray[4]*centreArray[5]/10000);
+                fillSquare(24, nlChance, nlText);
+            });
+            onSquare(24, function() {
+                if (roll(24)) makeLevel(5);
+            });
+        }
+        else if (n === 5) {
+            var text = 'chance of reducing, rather than increasing, my value by 10%';
+            var first = 50, second = 50, third = 50;
+            var nlText = 'chance of proceeding to NL if the preceding chances are (20%, 50%, 80%) in any order';
+
+            var s = [6, 8, 16]
+
+            fillSquare(6, first, text);
+            fillSquare(8, second, text);
+            fillSquare(16, third, text);
+            fillSquare(18, 100, nlText);
+
+            onSquare(6, function () {
+                first += roll(6)?-10:10;
+                fillSquare(6, first, text);
+            });
+            onSquare(8, function () {
+                second += roll(8)?-10:10;
+                fillSquare(8, second, text);
+            });
+            onSquare(16, function () {
+                third += roll(16)?-10:10;
+                fillSquare(16, third, text);
+            });
+            onSquare(18, function () {
+                var cSet = new Set([first, second, third])
+                if (cSet.has(20) && cSet.has(50) && cSet.has(80)) {
+                    makeLevel(6);
+                }
             });
         }
     }

@@ -25,26 +25,6 @@ $(document).ready(function() {
         return Math.random()*100 < square(ix).data('pct');
     }
 
-    function shuffle(array) {
-        let counter = array.length;
-
-        // While there are elements in the array
-        while (counter > 0) {
-            // Pick a random index
-            let index = Math.floor(Math.random() * counter);
-
-            // Decrease counter by 1
-            counter--;
-
-            // And swap the last element with it
-            let temp = array[counter];
-            array[counter] = array[index];
-            array[index] = temp;
-        }
-
-        return array;
-    }
-
     function fillSquare(ix, pct, text) {
         $$in.eq(ix).html(
             '<span class="pct">' +
@@ -101,24 +81,21 @@ $(document).ready(function() {
             var shuffleText = 'chance of shuffling the 9 centre squares';
             var productText = 'chance of inserting rounded product of all chances to the left to chance below';
             var nlChance = 0, nlText = 'chance of proceeding to NL';
+            var centrePositions = [6, 7, 8, 11, 12, 13, 16, 17, 18];
             var centreArray = [90, 10, 90, 10, 10, 10, 10, 90, 10];
 
             fillSquare(0, 100, shuffleText);
             fillSquare(14, 100, productText);
             fillSquare(24, 0, nlText);
-            for (i=0; i<3; i++) {
-                for (j=0; j<3; j++) {
-                    fillSquare(5*j+i+6, centreArray[3*j+i], '');
-                }
-            }
+            _.each(centrePositions, function(sq, ix) {
+                fillSquare(sq, centreArray[ix], '');
+            });
 
             onSquare(0, function() {
-                centreArray = shuffle(centreArray);            
-                for (i=0; i<3; i++) {
-                    for (j=0; j<3; j++) {
-                        fillSquare(5*j+i+6, centreArray[3*j+i], '');
-                    }
-                }
+                centreArray = _.shuffle(centreArray);
+                _.each(centrePositions, function(sq, ix) {
+                    fillSquare(sq, centreArray[ix], '');
+                });
             });
             onSquare(14, function() { 
                 nlChance = Math.round(centreArray[3]*centreArray[4]*centreArray[5]/10000);
@@ -133,7 +110,7 @@ $(document).ready(function() {
             var first = 50, second = 50, third = 50;
             var nlText = 'chance of proceeding to NL if the preceding chances are (20%, 50%, 80%) in any order';
 
-            var s = [6, 8, 16]
+            var s = [6, 8, 16];
 
             fillSquare(6, first, text);
             fillSquare(8, second, text);
@@ -153,8 +130,7 @@ $(document).ready(function() {
                 fillSquare(16, third, text);
             });
             onSquare(18, function () {
-                var cSet = new Set([first, second, third])
-                if (cSet.has(20) && cSet.has(50) && cSet.has(80)) {
+                if (_.isEqual([first, second, third].sort(), [20, 50, 80])) {
                     makeLevel(6);
                 }
             });

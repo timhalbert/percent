@@ -40,6 +40,7 @@ $(document).ready(function() {
         $$squares.off('click').toggleClass('active', false);
         $$squares.find('.square-click-pulse').remove();
         $$in.empty();
+        $lsLevels.find('.ls-level').toggleClass('current', false).eq(n-1).addClass('current');
 
         document.title = 'Level ' + n;
         currentLevel = n;
@@ -136,6 +137,20 @@ $(document).ready(function() {
             });
         }
     }
+
+    // Level selector
+
+    var numLevels = 5;
+    var $lsLevels = $('#level-selector').find('#ls-levels');
+    _.times(30, function(n) {
+        $lsLevels.append($('<div class="ls-level">' + (n+1) + '</div>').click(function(e) {
+            var $target = $(e.delegateTarget);
+            if ($target.hasClass('disabled')) return;
+            makeLevel(n+1);
+        }).toggleClass('disabled', n >= numLevels));
+    });
+
+    // Start
 
     makeLevel(currentLevel);
 

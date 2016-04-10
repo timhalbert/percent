@@ -136,11 +136,78 @@ $(document).ready(function() {
                 }
             });
         }
+	else if (n === 6) {
+            var hideShuffleText = 'chance of hiding and shuffling the above three squares '
+                'and adding 100% to every chance on the grid';
+            var firstClick = true;
+
+            var resetText = 'chance of resetting the level';
+            var proceedText = 'chance of proceeding to NL';
+
+            var montyHallDoors = [  // [text, level to load]
+                [resetText, n],
+                [proceedText, n+1],
+                [resetText, n]
+            ];
+            var doorPositions = [11, 12, 13];
+
+            var controllerText = 'chance of revealing a reset button NOT below this box';
+            var controllerPositions = [6, 7, 8];
+
+            var frozen = false;  // Prevents any further clicks on doors
+
+            fillSquare(17, 100, hideShuffleText);
+            _.each(controllerPositions, function (sq, ix) {
+                fillSquare(sq, 0, controllerText);
+            });
+            _.each(doorPositions, function (sq, ix) {
+                fillSquare(sq, 0, montyHallDoors[ix][0]);
+            });
+
+            onSquare(17, function () {
+                if (!firstClick) { return; }
+
+                firstClick = false;
+                fillSquare(17, 0, hideShuffleText);
+
+                _.each(controllerPositions, function (sq, ix) {
+                    fillSquare(sq, 100, controllerText);
+                });
+
+                doorPositions = _.shuffle(doorPositions);
+                _.each(doorPositions, function (sq, ix) {
+                    fillSquare(sq, 100, '???');
+                    onSquare(sq, function () {
+                        if (roll(sq) && !frozen) { 
+                            frozen = true;
+                            fillSquare(sq, 100, montyHallDoors[ix][0]);
+                            setTimeout(function () {
+                                makeLevel(montyHallDoors[ix][1]); 
+                            }, 300);
+                        }
+                    });
+                });
+            });
+
+            _.each(controllerPositions, function (sq, ix) {
+                onSquare(sq, function () {
+                    if (roll(sq)) {
+                        var toReveal = (sq + 5 === doorPositions[0]) ? 
+                            doorPositions[2] : doorPositions[0];
+                        fillSquare(toReveal, 100, resetText);
+
+                        _.each(controllerPositions, function (sq, ix) {
+                            fillSquare(sq, 0, controllerText);
+                        });
+                    }
+                });
+            });
+        }
     }
 
     // Level selector
 
-    var numLevels = 5;
+    var numLevels = 6;
     var $lsLevels = $('#level-selector').find('#ls-levels');
     _.times(30, function(n) {
         $lsLevels.append($('<div class="ls-level">' + (n+1) + '</div>').click(function(e) {
